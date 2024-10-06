@@ -1,8 +1,8 @@
 import argparse
-from .llm_api import suggest_command
-from .database import update_database, DB_PATH
-import sqlite3
 import os
+import sqlite3
+from snapshell.database import create_database, update_database, DB_PATH
+from .llm_api import suggest_command, set_api_key, load_api_key
 
 # ANSI escape codes for colors
 RESET = "\033[0m"
@@ -12,6 +12,20 @@ WHITE = "\033[37m"
 BLUE = "\033[34m"
 YELLOW = "\033[33m"
 RED = "\033[31m"
+
+def initial_setup():
+    # Prompt user for GROQ API key
+    print(GREEN + "Please enter your GROQ API key:" + RESET)
+    groq_api_key = input(YELLOW + "> " + RESET)
+    
+    # Set the API key
+    set_api_key(groq_api_key)
+    
+    print(YELLOW + f"Setting up the database... at {DB_PATH}" + RESET)
+    create_database()
+    update_database()
+    print(GREEN + "Database successfully created\n" + RESET)
+    print(GREEN + "Use the tool as snapshell\n" + RESET)
 
 def view_history():
     conn = sqlite3.connect(DB_PATH)
@@ -46,8 +60,22 @@ def main():
     parser.add_argument('--update-db', action='store_true', help="Update the database with installed packages")
     parser.add_argument('--view-history', action='store_true', help="View command history")
     parser.add_argument('--clear-history', action='store_true', help="Clear command history")
+    parser.add_argument('--set-api-key', type=str, help="Set the GROQ API key")
     args = parser.parse_args()
 
+    if args.set_api_key:
+        set_api_key(args.set_api_key)
+        print(GREEN + "API key set successfully." + RESET)
+        return
+
+    # Load the API key from the configuration file
+    API_KEY =  load_api_key()
+
+
+    if not API_KEY:
+        print("This is working")
+        initial_setup()
+    
     if args.update_db:
         print(f"{YELLOW}Updating database...{RESET}")
         update_database()
@@ -60,7 +88,7 @@ def main():
     if args.clear_history:
         clear_history()
         return
-
+    
     print(f"{CYAN}Welcome to the Linux Command Tool. Type 'exit' to quit.{RESET}")
 
     conversation_history = []

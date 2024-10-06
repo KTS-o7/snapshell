@@ -1,5 +1,6 @@
 # llm_api.py
 import os
+import json
 from groq import Groq
 from pydantic import BaseModel, Field, ValidationError
 from .system_info import fetch_system_info
@@ -7,10 +8,11 @@ from .package_managers import detect_package_manager
 import sqlite3
 from .database import DB_PATH, save_command_suggestion
 
+# Configuration file path
+CONFIG_FILE = os.path.expanduser("~/.snapshell_config.json")
 
-API_KEY = os.getenv('HELPER_GROQ_API_KEY')
-
-groq = Groq(api_key=API_KEY)
+# Global variable to store the API key
+API_KEY = None
 
 # Data model for LLM to generate
 class CommandSuggestion(BaseModel):
@@ -21,9 +23,26 @@ class CommandSuggestion(BaseModel):
 class SQLQuery(BaseModel):
     query: str = Field(description="The SQL query to be executed")
 
+def load_api_key():
+    global API_KEY
+    if os.path.exists(CONFIG_FILE):
+        with open(CONFIG_FILE, "r") as config_file:
+            config = json.load(config_file)
+            API_KEY = config.get("api_key")
+    return API_KEY
+
+def set_api_key(api_key):
+    global API_KEY
+    API_KEY = api_key
+    config = {"api_key": api_key}
+    with open(CONFIG_FILE, "w") as config_file:
+        json.dump(config, config_file)
+
 def suggest_command(user_input, conversation_history):
     if not API_KEY:
-        raise ValueError("API key not found. Please set the GROQ_API_KEY environment variable.")
+        raise ValueError("API key not set. Please set the API key using set_api_key function.")
+
+    groq = Groq(api_key=API_KEY)
 
     system_info = fetch_system_info()
     package_manager = detect_package_manager()
@@ -103,6 +122,8 @@ def fallback_to_llm(user_input, package_manager, fallback_message, conversation_
 
     messages.append({"role": "user", "content": user_input})
 
+    groq = Groq(api_key=API_KEY)
+
     chat_completion = groq.chat.completions.create(
         messages=messages,
         model="llama-3.2-90b-text-preview",
@@ -130,6 +151,8 @@ def formulate_sql_query(user_input):
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": user_input},
     ]
+
+    groq = Groq(api_key=API_KEY)
 
     chat_completion = groq.chat.completions.create(
         messages=messages,
@@ -171,3 +194,6 @@ def query_database(sql_query):
     except sqlite3.Error as e:
         # If there's any issue with the database query, return an empty result
         return []
+
+# Load the API key from the configuration file on module import
+load_api_key()
