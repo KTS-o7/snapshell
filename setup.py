@@ -1,17 +1,20 @@
 from setuptools import setup, find_packages
 from setuptools.command.install import install
 import os
-import colorama
 
 DB_PATH = os.path.expanduser('~/.snapshell/system_info.db')
 
 class CustomInstallCommand(install):
     def run(self):
         
+        # ANSI escape codes for colors
+        GREEN = '\033[92m'
+        YELLOW = '\033[93m'
+        RESET = '\033[0m'
+        
         # Prompt user for GROQ API key
-        colorama.init(autoreset=True)
-        print(colorama.Fore.GREEN + "Please enter your GROQ API key:")
-        groq_api_key = input(colorama.Fore.YELLOW + "> ")
+        print(GREEN + "Please enter your GROQ API key:" + RESET)
+        groq_api_key = input(YELLOW + "> " + RESET)
         
         # Detect the user's shell
         user_shell = os.environ.get('SHELL', '/bin/bash')
@@ -27,23 +30,20 @@ class CustomInstallCommand(install):
             # Set the GROQ API key in the user's shell config file
             with open(shell_config_path, "a") as shell_config:
                 shell_config.write(f'\nexport HELPER_GROQ_API_KEY="{groq_api_key}"\n')
-                print(colorama.Fore.GREEN + f"Added GROQ API key to {shell_config_path}")
+                print(GREEN + f"Added GROQ API key to {shell_config_path}" + RESET)
             
             # Reload shell configuration
             os.system(f'source {shell_config_path}')
             from snapshell.database import create_database, update_database
-            print(colorama.Fore.YELLOW + f"Setting up the database... at {DB_PATH}")
+            print(YELLOW + f"Setting up the database... at {DB_PATH}" + RESET)
             create_database()
             install.run(self)
             update_database()
             
-            print(colorama.Fore.GREEN + "Database successfully created\n")
-            print(colorama.Fore.GREEN + "use the tool as snapshell\n")
-            #restart the shell
+            print(GREEN + "Database successfully created\n" + RESET)
+            print(GREEN + "use the tool as snapshell\n" + RESET)
+            # Restart the shell
             os.execvp(user_shell, [user_shell])
-            
-            
-            
             
         else:
             print(f"Unrecognized shell: {user_shell}. Please manually add the following lines to your shell configuration file:")
@@ -65,7 +65,6 @@ setup(
         'requests',
         'instructor',
         'pydantic',
-        'colorama',
         'tqdm',  
     ],
     entry_points={

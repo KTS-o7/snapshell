@@ -1,11 +1,17 @@
 import argparse
-from colorama import Fore, Style, init
 from .llm_api import suggest_command
 from .database import update_database, DB_PATH
 import sqlite3
 import os
 
-init(autoreset=True)  # Initialize colorama
+# ANSI escape codes for colors
+RESET = "\033[0m"
+CYAN = "\033[36m"
+GREEN = "\033[32m"
+WHITE = "\033[37m"
+BLUE = "\033[34m"
+YELLOW = "\033[33m"
+RED = "\033[31m"
 
 def view_history():
     conn = sqlite3.connect(DB_PATH)
@@ -15,16 +21,16 @@ def view_history():
     conn.close()
 
     if not results:
-        print(f"{Fore.YELLOW}No history found.{Style.RESET_ALL}")
+        print(f"{YELLOW}No history found.{RESET}")
         return
 
-    print(f"{Fore.CYAN}Command History:{Style.RESET_ALL}")
+    print(f"{CYAN}Command History:{RESET}")
     for entry in results:
         user_input, command, explanation, timestamp = entry
-        print(f"{Fore.GREEN}User Input: {user_input}{Style.RESET_ALL}")
-        print(f"{Fore.WHITE}Command: {command}{Style.RESET_ALL}")
-        print(f"{Fore.BLUE}Explanation: {explanation}{Style.RESET_ALL}")
-        print(f"{Fore.YELLOW}Timestamp: {timestamp}{Style.RESET_ALL}")
+        print(f"{GREEN}User Input: {user_input}{RESET}")
+        print(f"{WHITE}Command: {command}{RESET}")
+        print(f"{BLUE}Explanation: {explanation}{RESET}")
+        print(f"{YELLOW}Timestamp: {timestamp}{RESET}")
         print("-" * 40)
 
 def clear_history():
@@ -33,7 +39,7 @@ def clear_history():
     cursor.execute('DELETE FROM command_suggestions')
     conn.commit()
     conn.close()
-    print(f"{Fore.GREEN}Command history cleared successfully.{Style.RESET_ALL}")
+    print(f"{GREEN}Command history cleared successfully.{RESET}")
 
 def main():
     parser = argparse.ArgumentParser(description="Auto-complete Linux commands using an LLM.")
@@ -43,9 +49,9 @@ def main():
     args = parser.parse_args()
 
     if args.update_db:
-        print(f"{Fore.YELLOW}Updating database...{Style.RESET_ALL}")
+        print(f"{YELLOW}Updating database...{RESET}")
         update_database()
-        print(f"{Fore.GREEN}Database updated successfully.{Style.RESET_ALL}")
+        print(f"{GREEN}Database updated successfully.{RESET}")
 
     if args.view_history:
         view_history()
@@ -55,24 +61,24 @@ def main():
         clear_history()
         return
 
-    print(f"{Fore.CYAN}Welcome to the Linux Command Tool. Type 'exit' to quit.{Style.RESET_ALL}")
+    print(f"{CYAN}Welcome to the Linux Command Tool. Type 'exit' to quit.{RESET}")
 
     conversation_history = []
 
     while True:
-        user_input = input(f"{Fore.CYAN}Enter your command query: {Style.RESET_ALL}")
+        user_input = input(f"{CYAN}Enter your command query: {RESET}")
 
         if user_input.lower() == 'exit':
-            print(f"{Fore.CYAN}Exiting the Linux Command Tool. Goodbye!{Style.RESET_ALL}")
+            print(f"{CYAN}Exiting the Linux Command Tool. Goodbye!{RESET}")
             break
 
         try:
-            print(f"{Fore.CYAN}Fetching command suggestion...{Style.RESET_ALL}")
+            print(f"{CYAN}Fetching command suggestion...{RESET}")
             suggestion = suggest_command(user_input, conversation_history)
-            print(f"{Fore.GREEN}Suggested Command: \n {Style.RESET_ALL}")
-            print(f"{Fore.WHITE}{suggestion.command}{Style.RESET_ALL}\n")
-            print(f"{Fore.BLUE}Explanation: {suggestion.explanation}{Style.RESET_ALL}\n")
-            print(f"{Fore.YELLOW}Warning: This is a suggestion. Review and execute at your own risk.{Style.RESET_ALL}")
+            print(f"{GREEN}Suggested Command: \n {RESET}")
+            print(f"{WHITE}{suggestion.command}{RESET}\n")
+            print(f"{BLUE}Explanation: {suggestion.explanation}{RESET}\n")
+            print(f"{YELLOW}Warning: This is a suggestion. Review and execute at your own risk.{RESET}")
 
             # Update conversation history
             conversation_history.append({"role": "user", "content": user_input})
@@ -83,7 +89,7 @@ def main():
                 conversation_history = conversation_history[-16:]
 
         except ValueError as e:
-            print(f"{Fore.RED}{e}{Style.RESET_ALL}")
+            print(f"{RED}{e}{RESET}")
         print("-" * 40,"\n")
 
 if __name__ == "__main__":
