@@ -3,7 +3,7 @@ from setuptools.command.install import install
 import os
 import colorama
 
-DB_PATH = os.path.expanduser('~/.linux_command_tool/system_info.db')
+DB_PATH = os.path.expanduser('~/.snapshell/system_info.db')
 
 class CustomInstallCommand(install):
     def run(self):
@@ -38,7 +38,7 @@ class CustomInstallCommand(install):
             update_database()
             
             print(colorama.Fore.GREEN + "Database successfully created\n")
-            print(colorama.Fore.GREEN + "use the tool as linux_command_tool\n")
+            print(colorama.Fore.GREEN + "use the tool as snapshell\n")
             #restart the shell
             os.execvp(user_shell, [user_shell])
             

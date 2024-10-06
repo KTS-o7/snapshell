@@ -4,7 +4,7 @@ import os
 from .package_managers import detect_package_manager
 from tqdm import tqdm
 
-DB_PATH = os.path.expanduser('~/.linux_command_tool/system_info.db')
+DB_PATH = os.path.expanduser('~/.snapshell/system_info.db')
 
 def create_database():
     if not os.path.exists(os.path.dirname(DB_PATH)):
