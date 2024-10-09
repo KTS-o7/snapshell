@@ -22,7 +22,7 @@ Install SnapShell with the following command:
 pip install snapshell
 ```
 ### Custom Installation
-SnapShell requires your `GROQ_API_KEY` during installation. Follow the on-screen instructions after installation
+SnapShell requires your Groq Api key during installation. Follow the on-screen instructions after installation
 
 The installation will automatically detect your shell (bash, zsh, fish) and set the key in the respective configuration file.
 
@@ -41,21 +41,20 @@ python setup.py install
 SnapShell requires the following libraries:
 
 - `argparse`: For parsing command-line arguments.
-- `colorama`: For colorized terminal output.
 - `sqlite3`: For local database operations.
 - `os`: To interact with your operating system.
 
 ## Configuration Instructions
-To use SnapShell, you need to set up the `GROQ_API_KEY` environment variable. This is required for connecting to the underlying Language Model API.
-### Setting the `GROQ_API_KEY`
+To use SnapShell, you need to set up the `HELPER_GROQ_API_KEY` environment variable. This is required for connecting to the underlying Language Model API.
+### Setting the `HELPER_GROQ_API_KEY`
 1. Obtain your API key from the GROQ service.
 1. Set it as an environment variable:
 ```sh
-export GROQ_API_KEY="your_api_key_here"
+export HELPER_GROQ_API_KEY="your_api_key_here"
 ```
 Alternatively, you can add this to your shell's configuration file (`.bashrc`, `.zshrc`, etc.):
 ```sh
-echo 'export GROQ_API_KEY="your_api_key_here"' >> ~/.bashrc
+echo 'export HELPER_GROQ_API_KEY="your_api_key_here"' >> ~/.bashrc
 ```
 Reload the shell configuration:
 ```sh
@@ -125,9 +124,9 @@ We currently need help to integrate SnapShell with more shells and support more 
 ```sh
 pip install --upgrade pip
 ```
-2. **Missing GROQ_API_KEY**: If SnapShell is not functioning properly, make sure the `GROQ_API_KEY` is correctly set as an environment variable. You can check this by running:
+2. **Missing GROQ_API_KEY**: If SnapShell is not functioning properly, make sure the `HELPER_GROQ_API_KEY` is correctly set as an environment variable. You can check this by running:
 ```sh
-echo $GROQ_API_KEY
+echo $HELPER_GROQ_API_KEY
 ```
 3. **Permission Denied**: If you encounter a "permission denied" error, try running the command with `sudo` or ensure you have the necessary file permissions.
 4. **Clearing History Not Working**: If the history isn’t clearing, you might need to manually reset the SQLite database file used by SnapShell:
