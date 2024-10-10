@@ -154,5 +154,4 @@ For any questions, issues, or feature requests, please reach out to:
 [shentharkrishnatejaswi@gmail.com](mailto:shentharkrishnatejaswi@gmail.com)
 
 ## Contributors
-
 - [Nihaal SP](https://github.com/nerdylelouch)
