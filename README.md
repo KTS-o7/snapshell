@@ -13,7 +13,7 @@ SnapShell is a powerful command-line utility designed to enhance your Linux term
 
 ### Prerequisites
 
-- Python 3.7 or higher
+- Python 3.10 or higher
 - `pip` package manager
 
 ### Installing via pip

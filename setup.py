@@ -1,9 +1,8 @@
 from setuptools import setup, find_packages
-import os
 
 setup(
     name='snapshell',
-    version='1.0.0',
+    version='1.1.0',
     author='Krishnatejaswi S',
     author_email='shentharkrishnatejaswi@gmail.com',
     description='An AI-powered tool to suggest Linux commands based on user input',
