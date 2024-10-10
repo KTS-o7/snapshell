@@ -1,59 +1,22 @@
 import argparse
-import os
 import sqlite3
-from snapshell.database import create_database, update_database, DB_PATH
-from .llm_api import suggest_command, set_api_key, load_api_key
+from snapshell.utils import update_database, DB_PATH, print_color , clear_history, view_history
+from .llm_api import LLMClient
 
-# ANSI escape codes for colors
-RESET = "\033[0m"
-CYAN = "\033[36m"
-GREEN = "\033[32m"
-WHITE = "\033[37m"
-BLUE = "\033[34m"
-YELLOW = "\033[33m"
-RED = "\033[31m"
-
-def initial_setup():
+def initial_setup(llm_client):
     # Prompt user for GROQ API key
-    print(GREEN + "Please enter your GROQ API key:" + RESET)
-    groq_api_key = input(YELLOW + "> " + RESET)
+    print_color("Please enter your GROQ API key:", "GREEN")
+    groq_api_key = input("> " )
     
     # Set the API key
-    set_api_key(groq_api_key)
+    llm_client.set_api_key(groq_api_key)
     
-    print(YELLOW + f"Setting up the database... at {DB_PATH}" + RESET)
-    create_database()
-    update_database()
-    print(GREEN + "Database successfully created\n" + RESET)
-    print(GREEN + "Use the tool as snapshell\n" + RESET)
+    print_color(f"Setting up the database... at {DB_PATH}", "YELLOW")
+    llm_client.init_client()
+    print_color("Database successfully created\n", "GREEN")
+    print_color("Use the tool as snapshell\n", "GREEN")
+    
 
-def view_history():
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    cursor.execute('SELECT user_input, command, explanation, timestamp FROM command_suggestions ORDER BY timestamp DESC')
-    results = cursor.fetchall()
-    conn.close()
-
-    if not results:
-        print(f"{YELLOW}No history found.{RESET}")
-        return
-
-    print(f"{CYAN}Command History:{RESET}")
-    for entry in results:
-        user_input, command, explanation, timestamp = entry
-        print(f"{GREEN}User Input: {user_input}{RESET}")
-        print(f"{WHITE}Command: {command}{RESET}")
-        print(f"{BLUE}Explanation: {explanation}{RESET}")
-        print(f"{YELLOW}Timestamp: {timestamp}{RESET}")
-        print("-" * 40)
-
-def clear_history():
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    cursor.execute('DELETE FROM command_suggestions')
-    conn.commit()
-    conn.close()
-    print(f"{GREEN}Command history cleared successfully.{RESET}")
 
 def main():
     parser = argparse.ArgumentParser(description="Auto-complete Linux commands using an LLM.")
@@ -63,23 +26,23 @@ def main():
     parser.add_argument('--set-api-key', type=str, help="Set the GROQ API key")
     args = parser.parse_args()
 
+    llm_client = LLMClient()
+
     if args.set_api_key:
-        set_api_key(args.set_api_key)
-        print(GREEN + "API key set successfully." + RESET)
+        llm_client.set_api_key(args.set_api_key)
+        print_color("API key set successfully.", "GREEN")
         return
 
     # Load the API key from the configuration file
-    API_KEY =  load_api_key()
-
+    API_KEY = llm_client.load_api_key()
 
     if not API_KEY:
-        print("This is working")
-        initial_setup()
+        initial_setup(llm_client)
     
     if args.update_db:
-        print(f"{YELLOW}Updating database...{RESET}")
+        print_color("Updating database...", "YELLOW")
         update_database()
-        print(f"{GREEN}Database updated successfully.{RESET}")
+        print_color("Database updated successfully.", "GREEN")
 
     if args.view_history:
         view_history()
@@ -89,24 +52,27 @@ def main():
         clear_history()
         return
     
-    print(f"{CYAN}Welcome to the Linux Command Tool. Type 'exit' to quit.{RESET}")
-
+    print_color("Welcome to the SnapShell. Type 'exit' to quit.", "CYAN")
+    
+    llm_client.init_client()
+    
     conversation_history = []
-
+    
     while True:
-        user_input = input(f"{CYAN}Enter your command query: {RESET}")
+        user_input = input(f"Enter your command query: ")
 
         if user_input.lower() == 'exit':
-            print(f"{CYAN}Exiting the Linux Command Tool. Goodbye!{RESET}")
+            print_color("Exiting the SnapShell. Goodbye!", "CYAN")
             break
 
         try:
-            print(f"{CYAN}Fetching command suggestion...{RESET}")
-            suggestion = suggest_command(user_input, conversation_history)
-            print(f"{GREEN}Suggested Command: \n {RESET}")
-            print(f"{WHITE}{suggestion.command}{RESET}\n")
-            print(f"{BLUE}Explanation: {suggestion.explanation}{RESET}\n")
-            print(f"{YELLOW}Warning: This is a suggestion. Review and execute at your own risk.{RESET}")
+            print_color("Fetching command suggestion...", "CYAN")
+            suggestion = llm_client.suggest_command(user_input, conversation_history)
+            print_color("Suggested Command:", "GREEN")
+            print_color(suggestion.command, "WHITE")
+            print_color("Explanation: \n", "BLUE")
+            print_color(suggestion.explanation, "BLUE")
+            print_color("Warning: This is a suggestion. Review and execute at your own risk.", "YELLOW")
 
             # Update conversation history
             conversation_history.append({"role": "user", "content": user_input})
@@ -117,8 +83,8 @@ def main():
                 conversation_history = conversation_history[-16:]
 
         except ValueError as e:
-            print(f"{RED}{e}{RESET}")
-        print("-" * 40,"\n")
+            print_color(str(e), "RED")
+        print("-" * 40, "\n")
 
 if __name__ == "__main__":
     main()
