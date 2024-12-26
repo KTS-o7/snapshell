@@ -7,6 +7,8 @@ from pydantic import BaseModel, Field, ValidationError
 from .package_managers import detect_package_manager
 from .utils import DB_PATH, save_command_suggestion, fetch_system_info , update_database
 
+model = "llama-3.3-70b-versatile"
+
 # Configuration file path
 CONFIG_FILE = os.path.expanduser("~/.snapshell_config.json")
 
@@ -96,7 +98,7 @@ class LLMClient:
 
         chat_completion = self.groq.chat.completions.create(
             messages=messages,
-            model="llama-3.2-90b-text-preview",
+            model=BaseModel,
             temperature=0,
             stream=False,
             response_format={"type": "json_object"},
@@ -129,7 +131,7 @@ class LLMClient:
 
         chat_completion = self.groq.chat.completions.create(
             messages=messages,
-            model="llama-3.2-90b-text-preview",
+            model=BaseModel,
             temperature=0,
             stream=False,
             response_format={"type": "json_object"},
@@ -157,7 +159,7 @@ class LLMClient:
 
         chat_completion = self.groq.chat.completions.create(
             messages=messages,
-            model="llama-3.2-90b-text-preview",
+            model=BaseModel,
             temperature=0,
             stream=False,
             response_format={"type": "json_object"},
