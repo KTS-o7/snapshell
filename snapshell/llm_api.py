@@ -98,7 +98,7 @@ class LLMClient:
 
         chat_completion = self.groq.chat.completions.create(
             messages=messages,
-            model=BaseModel,
+            model=model,
             temperature=0,
             stream=False,
             response_format={"type": "json_object"},
@@ -131,7 +131,7 @@ class LLMClient:
 
         chat_completion = self.groq.chat.completions.create(
             messages=messages,
-            model=BaseModel,
+            model=model,
             temperature=0,
             stream=False,
             response_format={"type": "json_object"},
@@ -159,7 +159,7 @@ class LLMClient:
 
         chat_completion = self.groq.chat.completions.create(
             messages=messages,
-            model=BaseModel,
+            model=model,
             temperature=0,
             stream=False,
             response_format={"type": "json_object"},
